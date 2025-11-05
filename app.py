@@ -74,6 +74,28 @@ def main():
         else:
             st.error(f"File not found: {dataset_path}")
 
+    # Auto-load model if files exist and model not yet loaded
+    model_path = os.path.join(models_dir, "model.joblib")
+    vec_path = os.path.join(models_dir, "vectorizer.joblib")
+    if "model" not in st.session_state and os.path.exists(model_path) and os.path.exists(vec_path):
+        try:
+            model, vectorizer = load_model(models_dir)
+            st.session_state["model"] = model
+            st.session_state["vectorizer"] = vectorizer
+            st.sidebar.success(f"Auto-loaded model from {models_dir}")
+        except Exception as e:
+            st.sidebar.warning(f"Found model files but failed to load: {e}")
+
+    # Explicit load-model button
+    if st.sidebar.button("Load model"):
+        try:
+            model, vectorizer = load_model(models_dir)
+            st.session_state["model"] = model
+            st.session_state["vectorizer"] = vectorizer
+            st.success("Model loaded")
+        except Exception as e:
+            st.error(f"Failed to load model: {e}")
+
 
     # --- Data Overview ---
     if "df" in st.session_state:
